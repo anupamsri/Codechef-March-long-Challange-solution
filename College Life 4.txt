@@ -1,0 +1,170 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long   // define long long as ll
+
+
+ll result(ll n, ll e, ll h, ll a, ll b, ll c){
+	ll low1=1;
+	ll ans=1e16;	// Initialize with maximum value
+	if(n<=0)
+		return 0;
+
+
+	//Case1: Order only for Omlettes
+	if(2*n<=e){
+		ans = min(ans, n*a);
+	}
+
+
+	//Case2: Order only for Chocolate Milkshake
+	if(3*n<=h){
+		ans = min(ans, n*b);
+	}
+
+
+	//Case3: Order only for Chocolate Cake
+	if(n<=e && n<=h){
+		ans = min(ans, n*c);
+	}
+
+
+	//Case4: Order for Omlettes and Milkshake
+	/*
+		consider x be the no. of omlettes and n-x be the no. of chocolate milkshake
+		and omlettes required 2 eggs and milkshake required 3 chocolate bars
+		then 
+		no. of eggs required = 2*x <= e    -->   x <= e/2
+		no. of chocolate bars required = 3*(n-x) <= h
+									  --> n - h/3 <= x
+		
+		so, n - h/3 <= x <= e/2		-->		n - h/3 <= e/2	
+									-->		(n - e/2)*3 <= h
+		x should be atleast one order -->  e/2 >= 1
+		
+		then the condition is:
+		e/2 >= 1 and (n-e/2)*3 <= h
+	*/
+	if((e/2 >=1) && ((n - e/2)*3 <= h)){
+		/*
+			a is price of omlette and b is the price of milkshake
+			then cost is
+			cost = x*a + (n-x)*b
+				 = (a-b)*x + n*b
+			if a-b < 0 cost is decrease with increase with x
+			and
+			if a-b > 0 cost is decrease with decrease with x
+		*/
+	    ll x;
+		if(a<b){
+			x = min(n-1, e/2);		//maximum no. of omlette at the most n-1
+		}
+		else{
+			x = max(low1, n - h/3);		//minimum no. of omlette at least 1
+		}
+		ll cost = (a-b)*x + b*n;
+		ans = min(ans, cost);
+	}
+
+
+
+	//Case5: for Both Omlettes and Chocolate Cakes
+	/*consider x be no. of omlettes and n-x be no. of chocolate cakes
+		then no. of eggs = 2*x + 1*(n-x) = x-n <= e --> x<= e-n
+		and no. of chocolate bars = 1*(n-x) = n-x <= h --> x>= n-h
+		
+		so, n-h <= x <= e-n --> e-n >= n-h -->   e+h >= 2*n
+		x should be atleast 1, so  e-n>=1
+		
+		Therefore the codition for order of both omlettes and chocolate cakes is
+		e-n >=1 and e+h >=2*n
+	*/
+	if((e-n >= 1) && (e+h >= 2*n)){
+		/* 
+			a is the price of omlette and c is the price of cake
+			then cost is 
+			cost = x*a + (n-x)*c
+				 = (a-c)*x + n*c
+			if a-c < 0 cost is decrease with increase with x
+			and
+			if a-c > 0 cost is decrease with decrease with x
+		*/
+		ll x;
+		if(a-c < 0){
+			x = min(n-1, e-n);		//maximum no. of omlette at the most n-1
+		}
+		else{
+			x = max(low1,n-h);		//minimum no. of omlette at least 1
+		}
+		ll cost = (a-c)*x + n*c;
+		ans = min(ans, cost);
+	}
+
+
+
+	//Case6: for Both Milkshake and Chocolate Cakes
+	/*consider x be no. of Milkshake and n-x be no. of chocolate cakes
+		then no. of eggs =  1*(n-x) = n-x <= e --> x>= n-e
+		and no. of chocolate bars = 3*x + 1*(n-x) = 2*x + n <= h --> x<= (h-n)/2
+		
+		so, n-e <= x <= (h-n)/2  --> n-e >= (h-n)/2 -->   (h-n)/2 >= (n-e)
+		x should be atleast 1, so  (h-n)/2>=1
+		
+		then the condition is:
+		(h-n)/2 >= 1 and (h-n)/2 >= (n-e)
+		
+	*/
+	if((h-n)/2 >=1 && (h-n)/2 >= (n-e)){
+		/*
+			b is the price of milkshake and c is the price of cake
+			then cost is 
+			cost = x*b + (n-x)*c
+				 = (b-c)*x + n*c
+			if b-c < 0 cost is decrease with increase with x
+			and
+			if b-c > 0 cost is decrease with decrease with x
+		*/
+		ll x;
+		if(b-c < 0){
+			x = min(n-1, (h-n)/2);		//maximum no. of milkshake at the most n-1
+		}
+		else{
+			x = max(low1,n-e);			//minimum no. of milkshake at least 1
+		}
+		ll cost = (b-c)*x + n*c;
+		ans = min(ans, cost);
+	}
+
+
+
+	//Case7: for all orders Omlette, Milkshake and Cake
+	if(e>=3 && h>=4 && n>=3){
+		//total items used for all 3 orders 3 eggs and 4 chocolate bars
+		ll cost = a + b + c + result(n-3, e-3, h-4, a, b, c);
+		ans = min(ans, cost);
+	}
+
+
+	return ans;
+}
+
+
+int main(){
+	ll t;
+	cin>>t;
+	while(t--){
+		ll n, e, h, a, b, c;
+		cin>>n>>e>>h>>a>>b>>c;
+		ll ans;
+		if(n>e && n>h)
+		    ans = 1e16;
+		else
+			ans = result(n, e, h, a, b, c);
+
+		//Result
+		if(ans==1e16)
+			cout<<"-1"<<endl;
+		else
+			cout<<ans<<endl;
+	}
+	return 0;
+}
